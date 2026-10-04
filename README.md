@@ -51,8 +51,10 @@ python3 tests/evaluer.py --backend n8n                    # le workflow importé
 
 | Date | Moteur | Score |
 | --- | --- | --- |
-| 2026-10-04 | Claude Haiku (prompt seul) | 10/10 |
-| 2026-10-04 | Workflow n8n 2.41.6 de bout en bout (Haiku à la place d'Ollama) | voir `tests/resultats-n8n-*.md` |
+| 2026-10-04 | Claude Haiku, prompt v1 | 10/10 |
+| 2026-10-04 | Workflow n8n 2.41.6 de bout en bout, prompt v1 (Haiku derrière une fausse API Ollama) | 9/10 : « disponible demain matin » pas compris comme une date |
+| 2026-10-04 | Claude Haiku, prompt v2 (règle des dates précisée) | 10/10 |
+| 2026-10-04 | Workflow n8n de bout en bout, prompt v2 | 10/10 |
 | à faire | Ollama llama3.1 sur le Mac | |
 
 ## Pour la démo de 5 minutes
