@@ -59,6 +59,9 @@ python3 tests/evaluer.py --backend n8n                    # le workflow importé
 
 ## Pour la démo de 5 minutes
 
+Vidéo de la démo (66 s, enregistrée le 2026-10-04 dans n8n) : `demo/jarvis-artisan-demo.mp4`. Les temps d'attente de l'IA y sont accélérés et signalés à l'écran.
+
+
 1. Ouvre l'écran de démo, colle la demande d'un faux client, clique sur **Recevoir la demande**.
 2. Montre le résumé, l'urgence et la réponse préparée pour le client : l'artisan la relit, puis l'envoie lui-même.
 3. Fais corriger une ligne à l'artisan (par exemple le prix du carrelage) : les totaux se recalculent.
