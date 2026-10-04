@@ -1,0 +1,57 @@
+{
+  "avertissement": "Démo · entreprise fictive. Prix inventés pour la démonstration : à remplacer par la grille réelle de l'artisan.",
+  "entreprise": "Plomberie Démo (entreprise fictive)",
+  "metier": "plomberie",
+  "tva": {
+    "taux": 0.10,
+    "note": "10 % pour des travaux de rénovation dans un logement de plus de 2 ans (attestation du client), 20 % sinon. L'artisan vérifie le taux à chaque devis."
+  },
+  "validite_jours": 90,
+  "prestations": {
+    "renovation_salle_de_bain": {
+      "libelle": "Rénovation complète de salle de bain",
+      "besoin_surface": true,
+      "lignes": [
+        {"code": "depose", "libelle": "Dépose de l'existant et évacuation des gravats", "unite": "m²", "prix_unitaire_ht": 35, "quantite": {"par": "surface", "coef": 1}},
+        {"code": "plomberie", "libelle": "Reprise des alimentations et évacuations", "unite": "forfait", "prix_unitaire_ht": 950, "quantite": {"fixe": 1}},
+        {"code": "carrelage_sol", "libelle": "Pose de carrelage au sol", "unite": "m²", "prix_unitaire_ht": 55, "quantite": {"par": "surface", "coef": 1}},
+        {"code": "faience_murs", "libelle": "Pose de faïence murale (estimation : 2,5 m² de mur par m² de sol)", "unite": "m²", "prix_unitaire_ht": 50, "quantite": {"par": "surface", "coef": 2.5}},
+        {"code": "fournitures", "libelle": "Fournitures de carrelage et faïence, gamme standard, 10 % de chute compris", "unite": "m²", "prix_unitaire_ht": 38, "quantite": {"par": "surface", "coef": 3.85}}
+      ],
+      "options": {
+        "douche_italienne": {"libelle": "Création d'une douche à l'italienne (receveur extra-plat, étanchéité, paroi)", "unite": "forfait", "prix_unitaire_ht": 1600},
+        "baignoire": {"libelle": "Fourniture et pose d'une baignoire", "unite": "forfait", "prix_unitaire_ht": 900},
+        "meuble_vasque": {"libelle": "Fourniture et pose d'un meuble vasque avec mitigeur", "unite": "forfait", "prix_unitaire_ht": 650},
+        "wc_suspendu": {"libelle": "Fourniture et pose d'un WC suspendu (bâti-support compris)", "unite": "forfait", "prix_unitaire_ht": 780}
+      }
+    },
+    "remplacement_chauffe_eau": {
+      "libelle": "Remplacement d'un chauffe-eau électrique",
+      "besoin_surface": false,
+      "lignes": [
+        {"code": "depose_ce", "libelle": "Dépose et évacuation de l'ancien chauffe-eau", "unite": "forfait", "prix_unitaire_ht": 90, "quantite": {"fixe": 1}},
+        {"code": "chauffe_eau_200", "libelle": "Fourniture d'un chauffe-eau 200 L, gamme standard", "unite": "pièce", "prix_unitaire_ht": 520, "quantite": {"fixe": 1}},
+        {"code": "pose_ce", "libelle": "Pose, raccordements et mise en service", "unite": "forfait", "prix_unitaire_ht": 280, "quantite": {"fixe": 1}}
+      ],
+      "options": {}
+    },
+    "recherche_fuite": {
+      "libelle": "Recherche et réparation de fuite",
+      "besoin_surface": false,
+      "lignes": [
+        {"code": "deplacement", "libelle": "Déplacement et diagnostic", "unite": "forfait", "prix_unitaire_ht": 70, "quantite": {"fixe": 1}},
+        {"code": "reparation", "libelle": "Réparation courante (1 heure, petites fournitures comprises)", "unite": "heure", "prix_unitaire_ht": 65, "quantite": {"fixe": 1}}
+      ],
+      "options": {}
+    },
+    "debouchage": {
+      "libelle": "Débouchage de canalisation",
+      "besoin_surface": false,
+      "lignes": [
+        {"code": "deplacement", "libelle": "Déplacement", "unite": "forfait", "prix_unitaire_ht": 50, "quantite": {"fixe": 1}},
+        {"code": "debouchage", "libelle": "Débouchage manuel ou à la pompe", "unite": "forfait", "prix_unitaire_ht": 110, "quantite": {"fixe": 1}}
+      ],
+      "options": {}
+    }
+  }
+}

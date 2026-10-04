@@ -1,0 +1,282 @@
+{
+  "name": "Jarvis Artisan · module devis (démo)",
+  "nodes": [
+    {
+      "parameters": {
+        "content": "## Jarvis Artisan · module devis\nDémo · entreprise fictive, prix inventés.\n\n1. Le client écrit (webhook POST `jarvis-artisan/devis`, champ `message`).\n2. Ollama lit la demande et rend un JSON (prestation, surface, options, infos manquantes). **Il ne chiffre rien.**\n3. Le code calcule le devis avec la grille de l'artisan.\n4. Le brouillon revient à l'artisan. **Rien n'est envoyé au client.**\n\nÉcran de démo : ouvrir l'URL du webhook GET `jarvis-artisan`.\nSources et tests : dépôt Agent-Artisan.",
+        "height": 360,
+        "width": 420
+      },
+      "id": "6d3e718c-5cc7-52c1-a6d4-44b3182309aa",
+      "name": "Mode d'emploi",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -520,
+        -140
+      ]
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "jarvis-artisan/devis",
+        "responseMode": "responseNode",
+        "options": {
+          "allowedOrigins": "*"
+        }
+      },
+      "id": "b34b5632-fad1-51be-a64b-e8e4be6b5312",
+      "name": "Demande client",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        0,
+        0
+      ],
+      "webhookId": "7f48bc16-4136-52c8-adda-9f961a4076c6"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Généré par outils/construire_workflow.py : modifier les sources du dépôt, pas ce nœud.\nconst MODELE = \"llama3.1\"; // modèle Ollama (ollama list)\nconst GRILLE = {\n  \"avertissement\": \"Démo · entreprise fictive. Prix inventés pour la démonstration : à remplacer par la grille réelle de l'artisan.\",\n  \"entreprise\": \"Plomberie Démo (entreprise fictive)\",\n  \"metier\": \"plomberie\",\n  \"tva\": {\n    \"taux\": 0.1,\n    \"note\": \"10 % pour des travaux de rénovation dans un logement de plus de 2 ans (attestation du client), 20 % sinon. L'artisan vérifie le taux à chaque devis.\"\n  },\n  \"validite_jours\": 90,\n  \"prestations\": {\n    \"renovation_salle_de_bain\": {\n      \"libelle\": \"Rénovation complète de salle de bain\",\n      \"besoin_surface\": true,\n      \"lignes\": [\n        {\n          \"code\": \"depose\",\n          \"libelle\": \"Dépose de l'existant et évacuation des gravats\",\n          \"unite\": \"m²\",\n          \"prix_unitaire_ht\": 35,\n          \"quantite\": {\n            \"par\": \"surface\",\n            \"coef\": 1\n          }\n        },\n        {\n          \"code\": \"plomberie\",\n          \"libelle\": \"Reprise des alimentations et évacuations\",\n          \"unite\": \"forfait\",\n          \"prix_unitaire_ht\": 950,\n          \"quantite\": {\n            \"fixe\": 1\n          }\n        },\n        {\n          \"code\": \"carrelage_sol\",\n          \"libelle\": \"Pose de carrelage au sol\",\n          \"unite\": \"m²\",\n          \"prix_unitaire_ht\": 55,\n          \"quantite\": {\n            \"par\": \"surface\",\n            \"coef\": 1\n          }\n        },\n        {\n          \"code\": \"faience_murs\",\n          \"libelle\": \"Pose de faïence murale (estimation : 2,5 m² de mur par m² de sol)\",\n          \"unite\": \"m²\",\n          \"prix_unitaire_ht\": 50,\n          \"quantite\": {\n            \"par\": \"surface\",\n            \"coef\": 2.5\n          }\n        },\n        {\n          \"code\": \"fournitures\",\n          \"libelle\": \"Fournitures de carrelage et faïence, gamme standard, 10 % de chute compris\",\n          \"unite\": \"m²\",\n          \"prix_unitaire_ht\": 38,\n          \"quantite\": {\n            \"par\": \"surface\",\n            \"coef\": 3.85\n          }\n        }\n      ],\n      \"options\": {\n        \"douche_italienne\": {\n          \"libelle\": \"Création d'une douche à l'italienne (receveur extra-plat, étanchéité, paroi)\",\n          \"unite\": \"forfait\",\n          \"prix_unitaire_ht\": 1600\n        },\n        \"baignoire\": {\n          \"libelle\": \"Fourniture et pose d'une baignoire\",\n          \"unite\": \"forfait\",\n          \"prix_unitaire_ht\": 900\n        },\n        \"meuble_vasque\": {\n          \"libelle\": \"Fourniture et pose d'un meuble vasque avec mitigeur\",\n          \"unite\": \"forfait\",\n          \"prix_unitaire_ht\": 650\n        },\n        \"wc_suspendu\": {\n          \"libelle\": \"Fourniture et pose d'un WC suspendu (bâti-support compris)\",\n          \"unite\": \"forfait\",\n          \"prix_unitaire_ht\": 780\n        }\n      }\n    },\n    \"remplacement_chauffe_eau\": {\n      \"libelle\": \"Remplacement d'un chauffe-eau électrique\",\n      \"besoin_surface\": false,\n      \"lignes\": [\n        {\n          \"code\": \"depose_ce\",\n          \"libelle\": \"Dépose et évacuation de l'ancien chauffe-eau\",\n          \"unite\": \"forfait\",\n          \"prix_unitaire_ht\": 90,\n          \"quantite\": {\n            \"fixe\": 1\n          }\n        },\n        {\n          \"code\": \"chauffe_eau_200\",\n          \"libelle\": \"Fourniture d'un chauffe-eau 200 L, gamme standard\",\n          \"unite\": \"pièce\",\n          \"prix_unitaire_ht\": 520,\n          \"quantite\": {\n            \"fixe\": 1\n          }\n        },\n        {\n          \"code\": \"pose_ce\",\n          \"libelle\": \"Pose, raccordements et mise en service\",\n          \"unite\": \"forfait\",\n          \"prix_unitaire_ht\": 280,\n          \"quantite\": {\n            \"fixe\": 1\n          }\n        }\n      ],\n      \"options\": {}\n    },\n    \"recherche_fuite\": {\n      \"libelle\": \"Recherche et réparation de fuite\",\n      \"besoin_surface\": false,\n      \"lignes\": [\n        {\n          \"code\": \"deplacement\",\n          \"libelle\": \"Déplacement et diagnostic\",\n          \"unite\": \"forfait\",\n          \"prix_unitaire_ht\": 70,\n          \"quantite\": {\n            \"fixe\": 1\n          }\n        },\n        {\n          \"code\": \"reparation\",\n          \"libelle\": \"Réparation courante (1 heure, petites fournitures comprises)\",\n          \"unite\": \"heure\",\n          \"prix_unitaire_ht\": 65,\n          \"quantite\": {\n            \"fixe\": 1\n          }\n        }\n      ],\n      \"options\": {}\n    },\n    \"debouchage\": {\n      \"libelle\": \"Débouchage de canalisation\",\n      \"besoin_surface\": false,\n      \"lignes\": [\n        {\n          \"code\": \"deplacement\",\n          \"libelle\": \"Déplacement\",\n          \"unite\": \"forfait\",\n          \"prix_unitaire_ht\": 50,\n          \"quantite\": {\n            \"fixe\": 1\n          }\n        },\n        {\n          \"code\": \"debouchage\",\n          \"libelle\": \"Débouchage manuel ou à la pompe\",\n          \"unite\": \"forfait\",\n          \"prix_unitaire_ht\": 110,\n          \"quantite\": {\n            \"fixe\": 1\n          }\n        }\n      ],\n      \"options\": {}\n    }\n  }\n};\nconst PROMPT = \"<role>\\nTu es l'assistant de devis de {{ENTREPRISE}}, artisan en {{METIER}}. Tu lis les demandes que les clients envoient par mail ou par message. Tu ne chiffres rien et tu n'écris rien au client : tu extrais seulement les informations utiles pour que le système prépare un brouillon de devis que l'artisan validera.\\n</role>\\n\\n<contexte>\\nL'artisan est sur les chantiers toute la journée. Une demande mal lue lui fait perdre plus de temps qu'une demande non lue : en cas de doute, tu le signales (a_verifier) au lieu de deviner.\\n</contexte>\\n\\n<prestations>\\n{{PRESTATIONS}}\\n</prestations>\\n\\n<etapes>\\n1. Choisis la prestation de la liste qui correspond à la demande. Si aucune ne correspond clairement, réponds hors_grille.\\n2. Relève la surface en m² si le client la donne (« 6 m² », « 2 m sur 3 » = 6). Sinon, mets 0. N'invente jamais une surface.\\n3. Relève les options de la prestation que le client demande explicitement (« douche à l'italienne », « WC suspendu »...). Une option qui n'est pas dans la liste de cette prestation n'est pas relevée.\\n4. Liste les informations qui manquent pour préparer et planifier le devis, parmi : adresse, date_souhaitee, budget, surface, photos, precisions. Pour une rénovation, la surface est nécessaire. Si le client dit qu'il joint des photos, photos ne manque pas. Une date ou une disponibilité citée (« demain matin », « en janvier », « dès que possible ») compte comme date_souhaitee donnée. Un lieu cité (ville, quartier) ne suffit pas : l'adresse manque encore.\\n5. Urgence : urgent si de l'eau coule ou fuit en ce moment, s'il n'y a plus d'eau chaude ou si une canalisation est bouchée et inutilisable. Sinon normal.\\n6. Résume la demande en une phrase factuelle, sans nom de famille, sans téléphone, sans adresse.\\n</etapes>\\n\\n<regles>\\n- Tu ne donnes jamais de prix, de délai ni de promesse.\\n- Tu ne recopies pas de données personnelles (nom complet, téléphone, adresse, coordonnées bancaires) dans le résumé.\\n- a_verifier est true si la demande est ambiguë, contient plusieurs chantiers différents, ou si tu as hésité entre deux prestations.\\n- Un message qui n'est pas une demande de travaux (publicité, démarchage, question administrative) est hors_grille.\\n</regles>\\n\\n<format>\\nRéponds uniquement avec un objet JSON :\\n{\\\"prestation\\\": \\\"code de la liste ou hors_grille\\\", \\\"surface_m2\\\": nombre (0 si inconnue), \\\"options\\\": [\\\"codes d'options\\\"], \\\"infos_manquantes\\\": [\\\"adresse|date_souhaitee|budget|surface|photos|precisions\\\"], \\\"urgence\\\": \\\"urgent|normal\\\", \\\"resume\\\": \\\"une phrase\\\", \\\"a_verifier\\\": true|false}\\n</format>\\n\\n<exemple>\\nDemande : « Bonjour, je voudrais refaire ma salle de bain, 6 m², avec une douche à l'italienne. Voici deux photos. »\\n{\\\"prestation\\\": \\\"renovation_salle_de_bain\\\", \\\"surface_m2\\\": 6, \\\"options\\\": [\\\"douche_italienne\\\"], \\\"infos_manquantes\\\": [\\\"adresse\\\", \\\"date_souhaitee\\\", \\\"budget\\\"], \\\"urgence\\\": \\\"normal\\\", \\\"resume\\\": \\\"Rénovation d'une salle de bain de 6 m² avec douche à l'italienne, photos jointes.\\\", \\\"a_verifier\\\": false}\\n</exemple>\\n\";\n\n// Jarvis Artisan, module devis : logique sans IA.\n// L'IA ne fait que lire la demande (type de travaux, surface, options, infos manquantes).\n// Tous les prix et tous les calculs viennent d'ici et de la grille de l'artisan, jamais du modèle.\n// Ce fichier est copié dans les nœuds Code du workflow n8n par outils/construire_workflow.py,\n// et testé tel quel par tests/evaluer.py (via Node).\n\nconst INFOS = [\"adresse\", \"date_souhaitee\", \"budget\", \"surface\", \"photos\", \"precisions\"];\n\nconst QUESTIONS = {\n  adresse: \"l'adresse du chantier\",\n  date_souhaitee: \"la période souhaitée pour les travaux\",\n  budget: \"le budget que vous envisagez\",\n  surface: \"la surface de la pièce (en m²)\",\n  photos: \"une ou deux photos de l'existant\",\n  precisions: \"quelques précisions sur ce que vous souhaitez\",\n};\n\nfunction schemaExtraction(grille) {\n  const prestations = Object.keys(grille.prestations).concat([\"hors_grille\"]);\n  const options = [];\n  for (const p of Object.values(grille.prestations)) {\n    for (const code of Object.keys(p.options || {})) if (!options.includes(code)) options.push(code);\n  }\n  return {\n    type: \"object\",\n    properties: {\n      prestation: { type: \"string\", enum: prestations },\n      surface_m2: { type: \"number\" },\n      options: { type: \"array\", items: { type: \"string\", enum: options } },\n      infos_manquantes: { type: \"array\", items: { type: \"string\", enum: INFOS } },\n      urgence: { type: \"string\", enum: [\"urgent\", \"normal\"] },\n      resume: { type: \"string\" },\n      a_verifier: { type: \"boolean\" },\n    },\n    required: [\"prestation\", \"surface_m2\", \"options\", \"infos_manquantes\", \"urgence\", \"resume\", \"a_verifier\"],\n  };\n}\n\nfunction listePrestations(grille) {\n  const lignes = [];\n  for (const [code, p] of Object.entries(grille.prestations)) {\n    const opts = Object.entries(p.options || {}).map(([c, o]) => `${c} (${o.libelle})`);\n    lignes.push(`- ${code} : ${p.libelle}` + (opts.length ? `. Options possibles : ${opts.join(\" ; \")}` : \"\"));\n  }\n  lignes.push(\"- hors_grille : tout le reste (autre métier, travaux non listés, message qui n'est pas une demande de travaux)\");\n  return lignes.join(\"\\n\");\n}\n\nfunction promptSysteme(modele, grille) {\n  return modele\n    .replace(\"{{ENTREPRISE}}\", grille.entreprise)\n    .replace(\"{{METIER}}\", grille.metier)\n    .replace(\"{{PRESTATIONS}}\", listePrestations(grille));\n}\n\nfunction arrondi(x) {\n  return Math.round(x * 100) / 100;\n}\n\nfunction quantite(regle, surface) {\n  if (regle.fixe !== undefined) return regle.fixe;\n  if (regle.par === \"surface\") return surface > 0 ? arrondi(surface * (regle.coef || 1)) : null;\n  return null;\n}\n\nfunction messageClient(infos, grille) {\n  const demandes = infos.filter((i) => QUESTIONS[i]).map((i) => QUESTIONS[i]);\n  const corps = demandes.length\n    ? `Pour préparer votre devis, pourriez-vous m'indiquer ${demandes.length === 1 ? demandes[0] : demandes.slice(0, -1).join(\", \") + \" et \" + demandes[demandes.length - 1]} ?`\n    : \"J'ai bien toutes les informations, je vous envoie votre devis très vite.\";\n  return (\n    `Bonjour, merci pour votre demande. ${corps}\\n` +\n    `Bonne journée,\\n[Prénom de l'artisan] – ${grille.entreprise}\\n` +\n    `(Message préparé avec l'aide d'un assistant IA et relu par l'artisan.)`\n  );\n}\n\nfunction verifierExtraction(e, grille) {\n  const erreurs = [];\n  if (!e || typeof e !== \"object\") return [\"sortie IA vide ou illisible\"];\n  const prestations = Object.keys(grille.prestations).concat([\"hors_grille\"]);\n  if (!prestations.includes(e.prestation)) erreurs.push(`prestation inconnue : ${e.prestation}`);\n  if (typeof e.surface_m2 !== \"number\" || e.surface_m2 < 0 || e.surface_m2 > 500) erreurs.push(`surface invalide : ${e.surface_m2}`);\n  if (!Array.isArray(e.options)) erreurs.push(\"options absentes\");\n  if (!Array.isArray(e.infos_manquantes)) erreurs.push(\"infos_manquantes absentes\");\n  return erreurs;\n}\n\nfunction calculerDevis(e, grille) {\n  const erreurs = verifierExtraction(e, grille);\n  if (erreurs.length) {\n    return { statut: \"erreur_ia\", erreurs, a_faire: \"L'IA n'a pas su lire la demande : la traiter à la main.\" };\n  }\n  const infos = e.infos_manquantes.filter((i) => INFOS.includes(i));\n  const p = grille.prestations[e.prestation];\n  if (!p) {\n    return {\n      statut: \"hors_grille\",\n      extraction: e,\n      devis: null,\n      message_client_brouillon: messageClient(infos.length ? infos : [\"precisions\"], grille),\n      a_faire: \"Demande hors grille de prix : à lire et chiffrer par l'artisan.\",\n    };\n  }\n  const surface = e.surface_m2 > 0 ? e.surface_m2 : 0;\n  if (p.besoin_surface && !surface && !infos.includes(\"surface\")) infos.push(\"surface\");\n\n  const lignes = [];\n  for (const l of p.lignes) {\n    const q = quantite(l.quantite, surface);\n    lignes.push({ code: l.code, libelle: l.libelle, unite: l.unite, quantite: q, prix_unitaire_ht: l.prix_unitaire_ht, montant_ht: q === null ? null : arrondi(q * l.prix_unitaire_ht) });\n  }\n  const ignorees = [];\n  for (const code of [...new Set(e.options)]) { // une option citée deux fois ne compte qu'une fois\n    const o = (p.options || {})[code];\n    if (!o) { ignorees.push(code); continue; }\n    lignes.push({ code, libelle: o.libelle, unite: o.unite, quantite: 1, prix_unitaire_ht: o.prix_unitaire_ht, montant_ht: o.prix_unitaire_ht });\n  }\n\n  const complet = lignes.every((l) => l.montant_ht !== null);\n  const totalHt = arrondi(lignes.reduce((s, l) => s + (l.montant_ht || 0), 0));\n  const tva = arrondi(totalHt * grille.tva.taux);\n  const aFaire = [];\n  if (e.urgence === \"urgent\") aFaire.push(\"URGENT : rappeler le client aujourd'hui.\");\n  aFaire.push(complet ? \"Relire le brouillon, corriger les lignes si besoin, puis valider.\" : \"Devis incomplet : attendre la surface du client avant de chiffrer les lignes vides.\");\n  if (e.a_verifier) aFaire.push(\"L'IA a un doute sur sa lecture : relire la demande.\");\n  if (ignorees.length) aFaire.push(`Options citées hors grille (ignorées) : ${ignorees.join(\", \")}.`);\n\n  return {\n    statut: complet ? \"brouillon_a_valider\" : \"brouillon_incomplet\",\n    extraction: e,\n    devis: {\n      entreprise: grille.entreprise,\n      prestation: p.libelle,\n      lignes,\n      // Pas de total tant qu'une ligne reste à chiffrer : un total partiel induirait le client en erreur.\n      total_ht: complet ? totalHt : null,\n      taux_tva: grille.tva.taux,\n      tva: complet ? tva : null,\n      total_ttc: complet ? arrondi(totalHt + tva) : null,\n      complet,\n      validite_jours: grille.validite_jours,\n      mentions: \"Brouillon à valider par l'artisan. Démo · entreprise fictive. Mentions légales du devis à compléter (SIRET, assurance décennale, conditions de paiement).\",\n    },\n    message_client_brouillon: messageClient(infos, grille),\n    a_faire: aFaire.join(\" \"),\n  };\n}\n\n\n// --- Nœud : préparer la requête pour Ollama ---\nconst corps = $input.first().json.body || {};\nconst message = String(corps.message || \"\").trim().slice(0, 4000);\nreturn [{ json: {\n  message,\n  vide: message.length === 0,\n  requete: {\n    model: MODELE,\n    stream: false,\n    format: schemaExtraction(GRILLE),\n    options: { temperature: 0 },\n    messages: [\n      { role: \"system\", content: promptSysteme(PROMPT, GRILLE) },\n      { role: \"user\", content: `Demande : « ${message} »` },\n    ],\n  },\n} }];\n"
+      },
+      "id": "08fe2824-4a9a-5ea2-b630-2db300d2b1ff",
+      "name": "Préparer la requête IA",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        220,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "f3548fca-8744-5e71-9d91-70a177a4a559",
+              "leftValue": "={{ $json.vide }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "3f67527e-a2bf-51b6-89d4-1ffa1fa6ed17",
+      "name": "Demande vide ?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        440,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "return [{ json: {\n  statut: \"erreur_entree\",\n  a_faire: \"Demande vide : rien à lire. Envoyer {\\\"message\\\": \\\"texte de la demande\\\"}.\",\n} }];\n"
+      },
+      "id": "b0142497-6950-59ff-ac76-20b66c895914",
+      "name": "Erreur : demande vide",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        660,
+        -160
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://host.docker.internal:11434/api/chat",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($json.requete) }}",
+        "options": {
+          "timeout": 300000
+        }
+      },
+      "id": "c22bea68-e1a3-5262-9057-a6124e0b605b",
+      "name": "Ollama : lire la demande",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        660,
+        80
+      ],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Généré par outils/construire_workflow.py : modifier les sources du dépôt, pas ce nœud.\nconst MODELE = \"llama3.1\"; // modèle Ollama (ollama list)\nconst GRILLE = {\n  \"avertissement\": \"Démo · entreprise fictive. Prix inventés pour la démonstration : à remplacer par la grille réelle de l'artisan.\",\n  \"entreprise\": \"Plomberie Démo (entreprise fictive)\",\n  \"metier\": \"plomberie\",\n  \"tva\": {\n    \"taux\": 0.1,\n    \"note\": \"10 % pour des travaux de rénovation dans un logement de plus de 2 ans (attestation du client), 20 % sinon. L'artisan vérifie le taux à chaque devis.\"\n  },\n  \"validite_jours\": 90,\n  \"prestations\": {\n    \"renovation_salle_de_bain\": {\n      \"libelle\": \"Rénovation complète de salle de bain\",\n      \"besoin_surface\": true,\n      \"lignes\": [\n        {\n          \"code\": \"depose\",\n          \"libelle\": \"Dépose de l'existant et évacuation des gravats\",\n          \"unite\": \"m²\",\n          \"prix_unitaire_ht\": 35,\n          \"quantite\": {\n            \"par\": \"surface\",\n            \"coef\": 1\n          }\n        },\n        {\n          \"code\": \"plomberie\",\n          \"libelle\": \"Reprise des alimentations et évacuations\",\n          \"unite\": \"forfait\",\n          \"prix_unitaire_ht\": 950,\n          \"quantite\": {\n            \"fixe\": 1\n          }\n        },\n        {\n          \"code\": \"carrelage_sol\",\n          \"libelle\": \"Pose de carrelage au sol\",\n          \"unite\": \"m²\",\n          \"prix_unitaire_ht\": 55,\n          \"quantite\": {\n            \"par\": \"surface\",\n            \"coef\": 1\n          }\n        },\n        {\n          \"code\": \"faience_murs\",\n          \"libelle\": \"Pose de faïence murale (estimation : 2,5 m² de mur par m² de sol)\",\n          \"unite\": \"m²\",\n          \"prix_unitaire_ht\": 50,\n          \"quantite\": {\n            \"par\": \"surface\",\n            \"coef\": 2.5\n          }\n        },\n        {\n          \"code\": \"fournitures\",\n          \"libelle\": \"Fournitures de carrelage et faïence, gamme standard, 10 % de chute compris\",\n          \"unite\": \"m²\",\n          \"prix_unitaire_ht\": 38,\n          \"quantite\": {\n            \"par\": \"surface\",\n            \"coef\": 3.85\n          }\n        }\n      ],\n      \"options\": {\n        \"douche_italienne\": {\n          \"libelle\": \"Création d'une douche à l'italienne (receveur extra-plat, étanchéité, paroi)\",\n          \"unite\": \"forfait\",\n          \"prix_unitaire_ht\": 1600\n        },\n        \"baignoire\": {\n          \"libelle\": \"Fourniture et pose d'une baignoire\",\n          \"unite\": \"forfait\",\n          \"prix_unitaire_ht\": 900\n        },\n        \"meuble_vasque\": {\n          \"libelle\": \"Fourniture et pose d'un meuble vasque avec mitigeur\",\n          \"unite\": \"forfait\",\n          \"prix_unitaire_ht\": 650\n        },\n        \"wc_suspendu\": {\n          \"libelle\": \"Fourniture et pose d'un WC suspendu (bâti-support compris)\",\n          \"unite\": \"forfait\",\n          \"prix_unitaire_ht\": 780\n        }\n      }\n    },\n    \"remplacement_chauffe_eau\": {\n      \"libelle\": \"Remplacement d'un chauffe-eau électrique\",\n      \"besoin_surface\": false,\n      \"lignes\": [\n        {\n          \"code\": \"depose_ce\",\n          \"libelle\": \"Dépose et évacuation de l'ancien chauffe-eau\",\n          \"unite\": \"forfait\",\n          \"prix_unitaire_ht\": 90,\n          \"quantite\": {\n            \"fixe\": 1\n          }\n        },\n        {\n          \"code\": \"chauffe_eau_200\",\n          \"libelle\": \"Fourniture d'un chauffe-eau 200 L, gamme standard\",\n          \"unite\": \"pièce\",\n          \"prix_unitaire_ht\": 520,\n          \"quantite\": {\n            \"fixe\": 1\n          }\n        },\n        {\n          \"code\": \"pose_ce\",\n          \"libelle\": \"Pose, raccordements et mise en service\",\n          \"unite\": \"forfait\",\n          \"prix_unitaire_ht\": 280,\n          \"quantite\": {\n            \"fixe\": 1\n          }\n        }\n      ],\n      \"options\": {}\n    },\n    \"recherche_fuite\": {\n      \"libelle\": \"Recherche et réparation de fuite\",\n      \"besoin_surface\": false,\n      \"lignes\": [\n        {\n          \"code\": \"deplacement\",\n          \"libelle\": \"Déplacement et diagnostic\",\n          \"unite\": \"forfait\",\n          \"prix_unitaire_ht\": 70,\n          \"quantite\": {\n            \"fixe\": 1\n          }\n        },\n        {\n          \"code\": \"reparation\",\n          \"libelle\": \"Réparation courante (1 heure, petites fournitures comprises)\",\n          \"unite\": \"heure\",\n          \"prix_unitaire_ht\": 65,\n          \"quantite\": {\n            \"fixe\": 1\n          }\n        }\n      ],\n      \"options\": {}\n    },\n    \"debouchage\": {\n      \"libelle\": \"Débouchage de canalisation\",\n      \"besoin_surface\": false,\n      \"lignes\": [\n        {\n          \"code\": \"deplacement\",\n          \"libelle\": \"Déplacement\",\n          \"unite\": \"forfait\",\n          \"prix_unitaire_ht\": 50,\n          \"quantite\": {\n            \"fixe\": 1\n          }\n        },\n        {\n          \"code\": \"debouchage\",\n          \"libelle\": \"Débouchage manuel ou à la pompe\",\n          \"unite\": \"forfait\",\n          \"prix_unitaire_ht\": 110,\n          \"quantite\": {\n            \"fixe\": 1\n          }\n        }\n      ],\n      \"options\": {}\n    }\n  }\n};\nconst PROMPT = \"<role>\\nTu es l'assistant de devis de {{ENTREPRISE}}, artisan en {{METIER}}. Tu lis les demandes que les clients envoient par mail ou par message. Tu ne chiffres rien et tu n'écris rien au client : tu extrais seulement les informations utiles pour que le système prépare un brouillon de devis que l'artisan validera.\\n</role>\\n\\n<contexte>\\nL'artisan est sur les chantiers toute la journée. Une demande mal lue lui fait perdre plus de temps qu'une demande non lue : en cas de doute, tu le signales (a_verifier) au lieu de deviner.\\n</contexte>\\n\\n<prestations>\\n{{PRESTATIONS}}\\n</prestations>\\n\\n<etapes>\\n1. Choisis la prestation de la liste qui correspond à la demande. Si aucune ne correspond clairement, réponds hors_grille.\\n2. Relève la surface en m² si le client la donne (« 6 m² », « 2 m sur 3 » = 6). Sinon, mets 0. N'invente jamais une surface.\\n3. Relève les options de la prestation que le client demande explicitement (« douche à l'italienne », « WC suspendu »...). Une option qui n'est pas dans la liste de cette prestation n'est pas relevée.\\n4. Liste les informations qui manquent pour préparer et planifier le devis, parmi : adresse, date_souhaitee, budget, surface, photos, precisions. Pour une rénovation, la surface est nécessaire. Si le client dit qu'il joint des photos, photos ne manque pas. Une date ou une disponibilité citée (« demain matin », « en janvier », « dès que possible ») compte comme date_souhaitee donnée. Un lieu cité (ville, quartier) ne suffit pas : l'adresse manque encore.\\n5. Urgence : urgent si de l'eau coule ou fuit en ce moment, s'il n'y a plus d'eau chaude ou si une canalisation est bouchée et inutilisable. Sinon normal.\\n6. Résume la demande en une phrase factuelle, sans nom de famille, sans téléphone, sans adresse.\\n</etapes>\\n\\n<regles>\\n- Tu ne donnes jamais de prix, de délai ni de promesse.\\n- Tu ne recopies pas de données personnelles (nom complet, téléphone, adresse, coordonnées bancaires) dans le résumé.\\n- a_verifier est true si la demande est ambiguë, contient plusieurs chantiers différents, ou si tu as hésité entre deux prestations.\\n- Un message qui n'est pas une demande de travaux (publicité, démarchage, question administrative) est hors_grille.\\n</regles>\\n\\n<format>\\nRéponds uniquement avec un objet JSON :\\n{\\\"prestation\\\": \\\"code de la liste ou hors_grille\\\", \\\"surface_m2\\\": nombre (0 si inconnue), \\\"options\\\": [\\\"codes d'options\\\"], \\\"infos_manquantes\\\": [\\\"adresse|date_souhaitee|budget|surface|photos|precisions\\\"], \\\"urgence\\\": \\\"urgent|normal\\\", \\\"resume\\\": \\\"une phrase\\\", \\\"a_verifier\\\": true|false}\\n</format>\\n\\n<exemple>\\nDemande : « Bonjour, je voudrais refaire ma salle de bain, 6 m², avec une douche à l'italienne. Voici deux photos. »\\n{\\\"prestation\\\": \\\"renovation_salle_de_bain\\\", \\\"surface_m2\\\": 6, \\\"options\\\": [\\\"douche_italienne\\\"], \\\"infos_manquantes\\\": [\\\"adresse\\\", \\\"date_souhaitee\\\", \\\"budget\\\"], \\\"urgence\\\": \\\"normal\\\", \\\"resume\\\": \\\"Rénovation d'une salle de bain de 6 m² avec douche à l'italienne, photos jointes.\\\", \\\"a_verifier\\\": false}\\n</exemple>\\n\";\n\n// Jarvis Artisan, module devis : logique sans IA.\n// L'IA ne fait que lire la demande (type de travaux, surface, options, infos manquantes).\n// Tous les prix et tous les calculs viennent d'ici et de la grille de l'artisan, jamais du modèle.\n// Ce fichier est copié dans les nœuds Code du workflow n8n par outils/construire_workflow.py,\n// et testé tel quel par tests/evaluer.py (via Node).\n\nconst INFOS = [\"adresse\", \"date_souhaitee\", \"budget\", \"surface\", \"photos\", \"precisions\"];\n\nconst QUESTIONS = {\n  adresse: \"l'adresse du chantier\",\n  date_souhaitee: \"la période souhaitée pour les travaux\",\n  budget: \"le budget que vous envisagez\",\n  surface: \"la surface de la pièce (en m²)\",\n  photos: \"une ou deux photos de l'existant\",\n  precisions: \"quelques précisions sur ce que vous souhaitez\",\n};\n\nfunction schemaExtraction(grille) {\n  const prestations = Object.keys(grille.prestations).concat([\"hors_grille\"]);\n  const options = [];\n  for (const p of Object.values(grille.prestations)) {\n    for (const code of Object.keys(p.options || {})) if (!options.includes(code)) options.push(code);\n  }\n  return {\n    type: \"object\",\n    properties: {\n      prestation: { type: \"string\", enum: prestations },\n      surface_m2: { type: \"number\" },\n      options: { type: \"array\", items: { type: \"string\", enum: options } },\n      infos_manquantes: { type: \"array\", items: { type: \"string\", enum: INFOS } },\n      urgence: { type: \"string\", enum: [\"urgent\", \"normal\"] },\n      resume: { type: \"string\" },\n      a_verifier: { type: \"boolean\" },\n    },\n    required: [\"prestation\", \"surface_m2\", \"options\", \"infos_manquantes\", \"urgence\", \"resume\", \"a_verifier\"],\n  };\n}\n\nfunction listePrestations(grille) {\n  const lignes = [];\n  for (const [code, p] of Object.entries(grille.prestations)) {\n    const opts = Object.entries(p.options || {}).map(([c, o]) => `${c} (${o.libelle})`);\n    lignes.push(`- ${code} : ${p.libelle}` + (opts.length ? `. Options possibles : ${opts.join(\" ; \")}` : \"\"));\n  }\n  lignes.push(\"- hors_grille : tout le reste (autre métier, travaux non listés, message qui n'est pas une demande de travaux)\");\n  return lignes.join(\"\\n\");\n}\n\nfunction promptSysteme(modele, grille) {\n  return modele\n    .replace(\"{{ENTREPRISE}}\", grille.entreprise)\n    .replace(\"{{METIER}}\", grille.metier)\n    .replace(\"{{PRESTATIONS}}\", listePrestations(grille));\n}\n\nfunction arrondi(x) {\n  return Math.round(x * 100) / 100;\n}\n\nfunction quantite(regle, surface) {\n  if (regle.fixe !== undefined) return regle.fixe;\n  if (regle.par === \"surface\") return surface > 0 ? arrondi(surface * (regle.coef || 1)) : null;\n  return null;\n}\n\nfunction messageClient(infos, grille) {\n  const demandes = infos.filter((i) => QUESTIONS[i]).map((i) => QUESTIONS[i]);\n  const corps = demandes.length\n    ? `Pour préparer votre devis, pourriez-vous m'indiquer ${demandes.length === 1 ? demandes[0] : demandes.slice(0, -1).join(\", \") + \" et \" + demandes[demandes.length - 1]} ?`\n    : \"J'ai bien toutes les informations, je vous envoie votre devis très vite.\";\n  return (\n    `Bonjour, merci pour votre demande. ${corps}\\n` +\n    `Bonne journée,\\n[Prénom de l'artisan] – ${grille.entreprise}\\n` +\n    `(Message préparé avec l'aide d'un assistant IA et relu par l'artisan.)`\n  );\n}\n\nfunction verifierExtraction(e, grille) {\n  const erreurs = [];\n  if (!e || typeof e !== \"object\") return [\"sortie IA vide ou illisible\"];\n  const prestations = Object.keys(grille.prestations).concat([\"hors_grille\"]);\n  if (!prestations.includes(e.prestation)) erreurs.push(`prestation inconnue : ${e.prestation}`);\n  if (typeof e.surface_m2 !== \"number\" || e.surface_m2 < 0 || e.surface_m2 > 500) erreurs.push(`surface invalide : ${e.surface_m2}`);\n  if (!Array.isArray(e.options)) erreurs.push(\"options absentes\");\n  if (!Array.isArray(e.infos_manquantes)) erreurs.push(\"infos_manquantes absentes\");\n  return erreurs;\n}\n\nfunction calculerDevis(e, grille) {\n  const erreurs = verifierExtraction(e, grille);\n  if (erreurs.length) {\n    return { statut: \"erreur_ia\", erreurs, a_faire: \"L'IA n'a pas su lire la demande : la traiter à la main.\" };\n  }\n  const infos = e.infos_manquantes.filter((i) => INFOS.includes(i));\n  const p = grille.prestations[e.prestation];\n  if (!p) {\n    return {\n      statut: \"hors_grille\",\n      extraction: e,\n      devis: null,\n      message_client_brouillon: messageClient(infos.length ? infos : [\"precisions\"], grille),\n      a_faire: \"Demande hors grille de prix : à lire et chiffrer par l'artisan.\",\n    };\n  }\n  const surface = e.surface_m2 > 0 ? e.surface_m2 : 0;\n  if (p.besoin_surface && !surface && !infos.includes(\"surface\")) infos.push(\"surface\");\n\n  const lignes = [];\n  for (const l of p.lignes) {\n    const q = quantite(l.quantite, surface);\n    lignes.push({ code: l.code, libelle: l.libelle, unite: l.unite, quantite: q, prix_unitaire_ht: l.prix_unitaire_ht, montant_ht: q === null ? null : arrondi(q * l.prix_unitaire_ht) });\n  }\n  const ignorees = [];\n  for (const code of [...new Set(e.options)]) { // une option citée deux fois ne compte qu'une fois\n    const o = (p.options || {})[code];\n    if (!o) { ignorees.push(code); continue; }\n    lignes.push({ code, libelle: o.libelle, unite: o.unite, quantite: 1, prix_unitaire_ht: o.prix_unitaire_ht, montant_ht: o.prix_unitaire_ht });\n  }\n\n  const complet = lignes.every((l) => l.montant_ht !== null);\n  const totalHt = arrondi(lignes.reduce((s, l) => s + (l.montant_ht || 0), 0));\n  const tva = arrondi(totalHt * grille.tva.taux);\n  const aFaire = [];\n  if (e.urgence === \"urgent\") aFaire.push(\"URGENT : rappeler le client aujourd'hui.\");\n  aFaire.push(complet ? \"Relire le brouillon, corriger les lignes si besoin, puis valider.\" : \"Devis incomplet : attendre la surface du client avant de chiffrer les lignes vides.\");\n  if (e.a_verifier) aFaire.push(\"L'IA a un doute sur sa lecture : relire la demande.\");\n  if (ignorees.length) aFaire.push(`Options citées hors grille (ignorées) : ${ignorees.join(\", \")}.`);\n\n  return {\n    statut: complet ? \"brouillon_a_valider\" : \"brouillon_incomplet\",\n    extraction: e,\n    devis: {\n      entreprise: grille.entreprise,\n      prestation: p.libelle,\n      lignes,\n      // Pas de total tant qu'une ligne reste à chiffrer : un total partiel induirait le client en erreur.\n      total_ht: complet ? totalHt : null,\n      taux_tva: grille.tva.taux,\n      tva: complet ? tva : null,\n      total_ttc: complet ? arrondi(totalHt + tva) : null,\n      complet,\n      validite_jours: grille.validite_jours,\n      mentions: \"Brouillon à valider par l'artisan. Démo · entreprise fictive. Mentions légales du devis à compléter (SIRET, assurance décennale, conditions de paiement).\",\n    },\n    message_client_brouillon: messageClient(infos, grille),\n    a_faire: aFaire.join(\" \"),\n  };\n}\n\n\n// --- Nœud : calculer le devis (sans IA) ---\nconst r = $input.first().json;\nlet extraction = null;\ntry { extraction = JSON.parse(r.message.content); } catch (e) { /* sortie illisible : traitée plus bas */ }\nconst resultat = calculerDevis(extraction, GRILLE);\nif (r.error) {\n  resultat.erreurs = [String(r.error.message || r.error)];\n  resultat.a_faire = \"Ollama ne répond pas (lancé ? modèle « \" + MODELE + \" » installé ?). Traiter la demande à la main.\";\n}\nreturn [{ json: resultat }];\n"
+      },
+      "id": "d34cf3c8-49e3-50b6-835f-177c3b9a1083",
+      "name": "Calculer le devis",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        880,
+        80
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "firstIncomingItem",
+        "options": {}
+      },
+      "id": "a5e53dd0-afea-548f-a5af-1d5c263601f8",
+      "name": "Brouillon à l'artisan",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        1100,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "httpMethod": "GET",
+        "path": "jarvis-artisan",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "759c0e9e-2180-5b22-a3cf-6a8d721e6051",
+      "name": "Écran de démo",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        0,
+        320
+      ],
+      "webhookId": "9edc0750-cf22-5b38-b45a-f62f2baf2994"
+    },
+    {
+      "parameters": {
+        "respondWith": "text",
+        "responseBody": "<!doctype html>\n<html lang=\"fr\">\n<head>\n<meta charset=\"utf-8\">\n<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n<title>Jarvis Artisan · démo devis</title>\n<style>\n  :root { --fond: #f6f5f1; --carte: #fff; --texte: #1d1f21; --doux: #5f6368; --trait: #e2e0d9; --accent: #1f5f8b; --ok: #1e7d4f; --alerte: #b3261e; --attention: #8a5a00; }\n  * { box-sizing: border-box; }\n  body { margin: 0; font: 16px/1.5 system-ui, -apple-system, \"Segoe UI\", sans-serif; background: var(--fond); color: var(--texte); }\n  header { padding: 16px; border-bottom: 1px solid var(--trait); background: var(--carte); display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: baseline; }\n  header h1 { margin: 0; font-size: 20px; }\n  .bandeau { font-size: 13px; color: var(--attention); font-weight: 600; }\n  main { max-width: 1100px; margin: 0 auto; padding: 16px; display: grid; gap: 16px; grid-template-columns: 1fr; }\n  @media (min-width: 900px) { main { grid-template-columns: 2fr 3fr; } }\n  section { background: var(--carte); border: 1px solid var(--trait); border-radius: 10px; padding: 16px; min-width: 0; }\n  h2 { margin: 0 0 12px; font-size: 16px; }\n  textarea, input { width: 100%; font: inherit; padding: 8px; border: 1px solid var(--trait); border-radius: 6px; background: #fff; color: inherit; }\n  textarea { min-height: 120px; resize: vertical; }\n  button { font: inherit; font-weight: 600; padding: 10px 16px; border: 0; border-radius: 6px; background: var(--accent); color: #fff; cursor: pointer; }\n  button.secondaire { background: transparent; color: var(--accent); border: 1px solid var(--accent); }\n  button:disabled { opacity: .5; cursor: wait; }\n  .ligne-boutons { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }\n  .doux { color: var(--doux); font-size: 14px; }\n  .badge { display: inline-block; padding: 2px 8px; border-radius: 99px; font-size: 13px; font-weight: 600; background: #e8eef3; color: var(--accent); }\n  .badge.urgent { background: #fbe9e7; color: var(--alerte); }\n  .badge.incomplet, .badge.hors { background: #fff4e0; color: var(--attention); }\n  .badge.valide { background: #e6f4ec; color: var(--ok); }\n  .table-defile { overflow-x: auto; }\n  table { width: 100%; border-collapse: collapse; font-size: 14px; }\n  th, td { text-align: left; padding: 6px 4px; border-bottom: 1px solid var(--trait); vertical-align: top; }\n  td.nombre, th.nombre { text-align: right; white-space: nowrap; }\n  td input { width: 84px; text-align: right; padding: 4px; }\n  tfoot td { font-weight: 600; border-bottom: 0; }\n  .a-faire { margin: 12px 0; padding: 8px 12px; border-left: 3px solid var(--attention); background: #fffaf0; font-size: 14px; }\n  #message { min-height: 170px; }\n  @media (max-width: 600px) {\n    table { font-size: 13px; }\n    thead th:nth-child(3), tbody td:nth-child(3), tfoot td:nth-child(2) { display: none; }\n    th, td { padding: 6px 2px; }\n    td input { width: 48px; padding: 4px 2px; }\n  }\n  .cache { display: none; }\n  details summary { cursor: pointer; color: var(--doux); font-size: 14px; }\n  @media print {\n    header, #colonne-demande, .ligne-boutons, .a-faire, #bloc-message, details, .pas-imprime { display: none !important; }\n    main { display: block; padding: 0; }\n    section { border: 0; }\n    td input { border: 0; width: auto; }\n  }\n</style>\n</head>\n<body>\n<header>\n  <h1>Jarvis Artisan</h1>\n  <span class=\"bandeau\">Démo · entreprise fictive · prix inventés</span>\n</header>\n<main>\n  <section id=\"colonne-demande\">\n    <h2>1. La demande du client</h2>\n    <p class=\"doux\">Écris comme un client, ou garde l'exemple.</p>\n    <textarea id=\"demande\">Bonjour, je voudrais refaire ma salle de bain, 6 m², voici deux photos.</textarea>\n    <div class=\"ligne-boutons\">\n      <button id=\"envoyer\">Recevoir la demande</button>\n    </div>\n    <details>\n      <summary>Réglages</summary>\n      <p class=\"doux\">Adresse du webhook n8n (module devis) :</p>\n      <input id=\"url\">\n    </details>\n    <p id=\"etat\" class=\"doux\" role=\"status\"></p>\n  </section>\n\n  <section id=\"colonne-resultat\">\n    <h2>2. Ce que Jarvis a préparé</h2>\n    <p id=\"vide\" class=\"doux\">Rien pour l'instant. Envoie une demande.</p>\n    <div id=\"resultat\" class=\"cache\">\n      <p><span id=\"statut\" class=\"badge\"></span> <span id=\"urgence\" class=\"badge urgent cache\">Urgent</span></p>\n      <p id=\"resume\"></p>\n      <div id=\"a-faire\" class=\"a-faire\"></div>\n\n      <div id=\"bloc-message\">\n        <h2>Réponse au client (brouillon)</h2>\n        <textarea id=\"message\"></textarea>\n        <p class=\"doux\">Rien ne part tout seul : tu relis, tu copies, tu envoies.</p>\n      </div>\n\n      <div id=\"bloc-devis\">\n        <h2 id=\"titre-devis\">Devis (brouillon)</h2>\n        <p class=\"doux pas-imprime\">Corrige une quantité ou un prix : les totaux se recalculent.</p>\n        <div class=\"table-defile\">\n          <table>\n            <thead><tr><th>Désignation</th><th class=\"nombre\">Qté</th><th>Unité</th><th class=\"nombre\">PU HT (€)</th><th class=\"nombre\">Montant HT</th></tr></thead>\n            <tbody id=\"lignes\"></tbody>\n            <tfoot>\n              <tr><td colspan=\"2\">Total HT</td><td></td><td></td><td class=\"nombre\" id=\"total-ht\"></td></tr>\n              <tr><td colspan=\"2\" id=\"libelle-tva\">TVA</td><td></td><td></td><td class=\"nombre\" id=\"tva\"></td></tr>\n              <tr><td colspan=\"2\">Total TTC</td><td></td><td></td><td class=\"nombre\" id=\"total-ttc\"></td></tr>\n            </tfoot>\n          </table>\n        </div>\n        <p id=\"mentions\" class=\"doux\"></p>\n        <div class=\"ligne-boutons\">\n          <button id=\"valider\">Valider et créer le PDF</button>\n        </div>\n      </div>\n    </div>\n  </section>\n</main>\n<script>\n  const $ = (id) => document.getElementById(id);\n  const euros = (x) => x.toLocaleString(\"fr-FR\", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + \" €\";\n  const STATUTS = {\n    brouillon_a_valider: [\"Brouillon à valider\", \"\"],\n    brouillon_incomplet: [\"Brouillon incomplet\", \"incomplet\"],\n    hors_grille: [\"Hors grille : à chiffrer à la main\", \"hors\"],\n    erreur_ia: [\"Erreur de lecture\", \"urgent\"],\n    erreur_entree: [\"Demande vide\", \"urgent\"],\n  };\n  let devis = null;\n\n  // Servie par n8n (GET /webhook/jarvis-artisan), la page appelle le webhook voisin ; ouverte en fichier, localhost:5678.\n  const ici = location.protocol.startsWith(\"http\") && location.pathname.includes(\"/webhook\");\n  $(\"url\").value = ici ? location.origin + location.pathname.replace(/\\/?$/, \"/devis\") : \"http://localhost:5678/webhook/jarvis-artisan/devis\";\n\n  $(\"envoyer\").onclick = async () => {\n    $(\"envoyer\").disabled = true;\n    $(\"etat\").textContent = \"Jarvis lit la demande… (un modèle local peut prendre 10 à 60 secondes)\";\n    try {\n      const reponse = await fetch($(\"url\").value, {\n        method: \"POST\",\n        headers: { \"Content-Type\": \"application/json\" },\n        body: JSON.stringify({ message: $(\"demande\").value }),\n      });\n      afficher(await reponse.json());\n      $(\"etat\").textContent = \"\";\n    } catch (e) {\n      $(\"etat\").textContent = \"Impossible de joindre n8n : le workflow est-il actif ? (\" + e.message + \")\";\n    } finally {\n      $(\"envoyer\").disabled = false;\n    }\n  };\n\n  function afficher(r) {\n    $(\"vide\").classList.add(\"cache\");\n    $(\"resultat\").classList.remove(\"cache\");\n    const [texte, classe] = STATUTS[r.statut] || [r.statut, \"\"];\n    $(\"statut\").textContent = texte;\n    $(\"statut\").className = \"badge \" + classe;\n    const e = r.extraction || {};\n    $(\"urgence\").classList.toggle(\"cache\", e.urgence !== \"urgent\");\n    $(\"resume\").textContent = e.resume || \"\";\n    $(\"a-faire\").textContent = r.a_faire || \"\";\n    $(\"message\").value = r.message_client_brouillon || \"\";\n    $(\"bloc-message\").classList.toggle(\"cache\", !r.message_client_brouillon);\n    devis = r.devis;\n    $(\"bloc-devis\").classList.toggle(\"cache\", !devis);\n    if (devis) dessinerDevis();\n  }\n\n  function dessinerDevis() {\n    $(\"titre-devis\").textContent = \"Devis (brouillon) · \" + devis.prestation;\n    $(\"mentions\").textContent = devis.mentions + \" Validité : \" + devis.validite_jours + \" jours.\";\n    $(\"libelle-tva\").textContent = \"TVA \" + Math.round(devis.taux_tva * 100) + \" %\";\n    $(\"lignes\").innerHTML = \"\";\n    devis.lignes.forEach((l, i) => {\n      const tr = document.createElement(\"tr\");\n      tr.innerHTML = `<td></td><td class=\"nombre\"><input type=\"number\" step=\"0.1\" min=\"0\" data-champ=\"quantite\" data-i=\"${i}\"></td><td></td>` +\n        `<td class=\"nombre\"><input type=\"number\" step=\"1\" min=\"0\" data-champ=\"prix_unitaire_ht\" data-i=\"${i}\"></td><td class=\"nombre\" id=\"m${i}\"></td>`;\n      tr.children[0].textContent = l.libelle;\n      tr.children[2].textContent = l.unite;\n      tr.querySelector('[data-champ=\"quantite\"]').value = l.quantite ?? \"\";\n      tr.querySelector('[data-champ=\"prix_unitaire_ht\"]').value = l.prix_unitaire_ht;\n      $(\"lignes\").appendChild(tr);\n    });\n    recalculer();\n  }\n\n  $(\"lignes\").addEventListener(\"input\", (ev) => {\n    const champ = ev.target.dataset.champ;\n    if (!champ) return;\n    const v = ev.target.value === \"\" ? null : Number(ev.target.value);\n    devis.lignes[ev.target.dataset.i][champ] = v;\n    recalculer();\n  });\n\n  function recalculer() {\n    let ht = 0, complet = true;\n    devis.lignes.forEach((l, i) => {\n      const m = l.quantite == null || l.prix_unitaire_ht == null ? null : Math.round(l.quantite * l.prix_unitaire_ht * 100) / 100;\n      $(\"m\" + i).textContent = m == null ? \"à chiffrer\" : euros(m);\n      if (m == null) complet = false; else ht += m;\n    });\n    const tva = Math.round(ht * devis.taux_tva * 100) / 100;\n    $(\"total-ht\").textContent = euros(ht);\n    $(\"tva\").textContent = euros(tva);\n    $(\"total-ttc\").textContent = euros(ht + tva);\n    $(\"valider\").disabled = !complet;\n    $(\"valider\").title = complet ? \"\" : \"Complète d'abord les lignes à chiffrer\";\n  }\n\n  $(\"valider\").onclick = () => {\n    $(\"statut\").textContent = \"Validé par l'artisan\";\n    $(\"statut\").className = \"badge valide\";\n    window.print(); // « Enregistrer en PDF » dans la fenêtre d'impression\n  };\n</script>\n</body>\n</html>\n",
+        "options": {
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Content-Type",
+                "value": "text/html; charset=utf-8"
+              }
+            ]
+          }
+        }
+      },
+      "id": "b707f14c-97ae-58fa-b5a7-1a8e0d3a195d",
+      "name": "Page HTML",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        220,
+        320
+      ]
+    }
+  ],
+  "connections": {
+    "Demande client": {
+      "main": [
+        [
+          {
+            "node": "Préparer la requête IA",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Préparer la requête IA": {
+      "main": [
+        [
+          {
+            "node": "Demande vide ?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Demande vide ?": {
+      "main": [
+        [
+          {
+            "node": "Erreur : demande vide",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Ollama : lire la demande",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Erreur : demande vide": {
+      "main": [
+        [
+          {
+            "node": "Brouillon à l'artisan",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ollama : lire la demande": {
+      "main": [
+        [
+          {
+            "node": "Calculer le devis",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Calculer le devis": {
+      "main": [
+        [
+          {
+            "node": "Brouillon à l'artisan",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Écran de démo": {
+      "main": [
+        [
+          {
+            "node": "Page HTML",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "pinData": {},
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "tags": []
+}

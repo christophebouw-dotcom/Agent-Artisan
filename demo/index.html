@@ -1,0 +1,209 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Jarvis Artisan · démo devis</title>
+<style>
+  :root { --fond: #f6f5f1; --carte: #fff; --texte: #1d1f21; --doux: #5f6368; --trait: #e2e0d9; --accent: #1f5f8b; --ok: #1e7d4f; --alerte: #b3261e; --attention: #8a5a00; }
+  * { box-sizing: border-box; }
+  body { margin: 0; font: 16px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; background: var(--fond); color: var(--texte); }
+  header { padding: 16px; border-bottom: 1px solid var(--trait); background: var(--carte); display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: baseline; }
+  header h1 { margin: 0; font-size: 20px; }
+  .bandeau { font-size: 13px; color: var(--attention); font-weight: 600; }
+  main { max-width: 1100px; margin: 0 auto; padding: 16px; display: grid; gap: 16px; grid-template-columns: 1fr; }
+  @media (min-width: 900px) { main { grid-template-columns: 2fr 3fr; } }
+  section { background: var(--carte); border: 1px solid var(--trait); border-radius: 10px; padding: 16px; min-width: 0; }
+  h2 { margin: 0 0 12px; font-size: 16px; }
+  textarea, input { width: 100%; font: inherit; padding: 8px; border: 1px solid var(--trait); border-radius: 6px; background: #fff; color: inherit; }
+  textarea { min-height: 120px; resize: vertical; }
+  button { font: inherit; font-weight: 600; padding: 10px 16px; border: 0; border-radius: 6px; background: var(--accent); color: #fff; cursor: pointer; }
+  button.secondaire { background: transparent; color: var(--accent); border: 1px solid var(--accent); }
+  button:disabled { opacity: .5; cursor: wait; }
+  .ligne-boutons { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+  .doux { color: var(--doux); font-size: 14px; }
+  .badge { display: inline-block; padding: 2px 8px; border-radius: 99px; font-size: 13px; font-weight: 600; background: #e8eef3; color: var(--accent); }
+  .badge.urgent { background: #fbe9e7; color: var(--alerte); }
+  .badge.incomplet, .badge.hors { background: #fff4e0; color: var(--attention); }
+  .badge.valide { background: #e6f4ec; color: var(--ok); }
+  .table-defile { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  th, td { text-align: left; padding: 6px 4px; border-bottom: 1px solid var(--trait); vertical-align: top; }
+  td.nombre, th.nombre { text-align: right; white-space: nowrap; }
+  td input { width: 84px; text-align: right; padding: 4px; }
+  tfoot td { font-weight: 600; border-bottom: 0; }
+  .a-faire { margin: 12px 0; padding: 8px 12px; border-left: 3px solid var(--attention); background: #fffaf0; font-size: 14px; }
+  #message { min-height: 170px; }
+  @media (max-width: 600px) {
+    table { font-size: 13px; }
+    thead th:nth-child(3), tbody td:nth-child(3), tfoot td:nth-child(2) { display: none; }
+    th, td { padding: 6px 2px; }
+    td input { width: 48px; padding: 4px 2px; }
+  }
+  .cache { display: none; }
+  details summary { cursor: pointer; color: var(--doux); font-size: 14px; }
+  @media print {
+    header, #colonne-demande, .ligne-boutons, .a-faire, #bloc-message, details, .pas-imprime { display: none !important; }
+    main { display: block; padding: 0; }
+    section { border: 0; }
+    td input { border: 0; width: auto; }
+  }
+</style>
+</head>
+<body>
+<header>
+  <h1>Jarvis Artisan</h1>
+  <span class="bandeau">Démo · entreprise fictive · prix inventés</span>
+</header>
+<main>
+  <section id="colonne-demande">
+    <h2>1. La demande du client</h2>
+    <p class="doux">Écris comme un client, ou garde l'exemple.</p>
+    <textarea id="demande">Bonjour, je voudrais refaire ma salle de bain, 6 m², voici deux photos.</textarea>
+    <div class="ligne-boutons">
+      <button id="envoyer">Recevoir la demande</button>
+    </div>
+    <details>
+      <summary>Réglages</summary>
+      <p class="doux">Adresse du webhook n8n (module devis) :</p>
+      <input id="url">
+    </details>
+    <p id="etat" class="doux" role="status"></p>
+  </section>
+
+  <section id="colonne-resultat">
+    <h2>2. Ce que Jarvis a préparé</h2>
+    <p id="vide" class="doux">Rien pour l'instant. Envoie une demande.</p>
+    <div id="resultat" class="cache">
+      <p><span id="statut" class="badge"></span> <span id="urgence" class="badge urgent cache">Urgent</span></p>
+      <p id="resume"></p>
+      <div id="a-faire" class="a-faire"></div>
+
+      <div id="bloc-message">
+        <h2>Réponse au client (brouillon)</h2>
+        <textarea id="message"></textarea>
+        <p class="doux">Rien ne part tout seul : tu relis, tu copies, tu envoies.</p>
+      </div>
+
+      <div id="bloc-devis">
+        <h2 id="titre-devis">Devis (brouillon)</h2>
+        <p class="doux pas-imprime">Corrige une quantité ou un prix : les totaux se recalculent.</p>
+        <div class="table-defile">
+          <table>
+            <thead><tr><th>Désignation</th><th class="nombre">Qté</th><th>Unité</th><th class="nombre">PU HT (€)</th><th class="nombre">Montant HT</th></tr></thead>
+            <tbody id="lignes"></tbody>
+            <tfoot>
+              <tr><td colspan="2">Total HT</td><td></td><td></td><td class="nombre" id="total-ht"></td></tr>
+              <tr><td colspan="2" id="libelle-tva">TVA</td><td></td><td></td><td class="nombre" id="tva"></td></tr>
+              <tr><td colspan="2">Total TTC</td><td></td><td></td><td class="nombre" id="total-ttc"></td></tr>
+            </tfoot>
+          </table>
+        </div>
+        <p id="mentions" class="doux"></p>
+        <div class="ligne-boutons">
+          <button id="valider">Valider et créer le PDF</button>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+<script>
+  const $ = (id) => document.getElementById(id);
+  const euros = (x) => x.toLocaleString("fr-FR", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " €";
+  const STATUTS = {
+    brouillon_a_valider: ["Brouillon à valider", ""],
+    brouillon_incomplet: ["Brouillon incomplet", "incomplet"],
+    hors_grille: ["Hors grille : à chiffrer à la main", "hors"],
+    erreur_ia: ["Erreur de lecture", "urgent"],
+    erreur_entree: ["Demande vide", "urgent"],
+  };
+  let devis = null;
+
+  // Servie par n8n (GET /webhook/jarvis-artisan), la page appelle le webhook voisin ; ouverte en fichier, localhost:5678.
+  const ici = location.protocol.startsWith("http") && location.pathname.includes("/webhook");
+  $("url").value = ici ? location.origin + location.pathname.replace(/\/?$/, "/devis") : "http://localhost:5678/webhook/jarvis-artisan/devis";
+
+  $("envoyer").onclick = async () => {
+    $("envoyer").disabled = true;
+    $("etat").textContent = "Jarvis lit la demande… (un modèle local peut prendre 10 à 60 secondes)";
+    try {
+      const reponse = await fetch($("url").value, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message: $("demande").value }),
+      });
+      afficher(await reponse.json());
+      $("etat").textContent = "";
+    } catch (e) {
+      $("etat").textContent = "Impossible de joindre n8n : le workflow est-il actif ? (" + e.message + ")";
+    } finally {
+      $("envoyer").disabled = false;
+    }
+  };
+
+  function afficher(r) {
+    $("vide").classList.add("cache");
+    $("resultat").classList.remove("cache");
+    const [texte, classe] = STATUTS[r.statut] || [r.statut, ""];
+    $("statut").textContent = texte;
+    $("statut").className = "badge " + classe;
+    const e = r.extraction || {};
+    $("urgence").classList.toggle("cache", e.urgence !== "urgent");
+    $("resume").textContent = e.resume || "";
+    $("a-faire").textContent = r.a_faire || "";
+    $("message").value = r.message_client_brouillon || "";
+    $("bloc-message").classList.toggle("cache", !r.message_client_brouillon);
+    devis = r.devis;
+    $("bloc-devis").classList.toggle("cache", !devis);
+    if (devis) dessinerDevis();
+  }
+
+  function dessinerDevis() {
+    $("titre-devis").textContent = "Devis (brouillon) · " + devis.prestation;
+    $("mentions").textContent = devis.mentions + " Validité : " + devis.validite_jours + " jours.";
+    $("libelle-tva").textContent = "TVA " + Math.round(devis.taux_tva * 100) + " %";
+    $("lignes").innerHTML = "";
+    devis.lignes.forEach((l, i) => {
+      const tr = document.createElement("tr");
+      tr.innerHTML = `<td></td><td class="nombre"><input type="number" step="0.1" min="0" data-champ="quantite" data-i="${i}"></td><td></td>` +
+        `<td class="nombre"><input type="number" step="1" min="0" data-champ="prix_unitaire_ht" data-i="${i}"></td><td class="nombre" id="m${i}"></td>`;
+      tr.children[0].textContent = l.libelle;
+      tr.children[2].textContent = l.unite;
+      tr.querySelector('[data-champ="quantite"]').value = l.quantite ?? "";
+      tr.querySelector('[data-champ="prix_unitaire_ht"]').value = l.prix_unitaire_ht;
+      $("lignes").appendChild(tr);
+    });
+    recalculer();
+  }
+
+  $("lignes").addEventListener("input", (ev) => {
+    const champ = ev.target.dataset.champ;
+    if (!champ) return;
+    const v = ev.target.value === "" ? null : Number(ev.target.value);
+    devis.lignes[ev.target.dataset.i][champ] = v;
+    recalculer();
+  });
+
+  function recalculer() {
+    let ht = 0, complet = true;
+    devis.lignes.forEach((l, i) => {
+      const m = l.quantite == null || l.prix_unitaire_ht == null ? null : Math.round(l.quantite * l.prix_unitaire_ht * 100) / 100;
+      $("m" + i).textContent = m == null ? "à chiffrer" : euros(m);
+      if (m == null) complet = false; else ht += m;
+    });
+    const tva = Math.round(ht * devis.taux_tva * 100) / 100;
+    $("total-ht").textContent = euros(ht);
+    $("tva").textContent = euros(tva);
+    $("total-ttc").textContent = euros(ht + tva);
+    $("valider").disabled = !complet;
+    $("valider").title = complet ? "" : "Complète d'abord les lignes à chiffrer";
+  }
+
+  $("valider").onclick = () => {
+    $("statut").textContent = "Validé par l'artisan";
+    $("statut").className = "badge valide";
+    window.print(); // « Enregistrer en PDF » dans la fenêtre d'impression
+  };
+</script>
+</body>
+</html>
