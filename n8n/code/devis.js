@@ -63,7 +63,16 @@ function quantite(regle, surface) {
   return null;
 }
 
-function messageClient(infos, grille) {
+function messageClient(infos, grille, urgent) {
+  if (urgent) {
+    // Urgence : pas de questions sur le budget ou la période, seulement de quoi intervenir vite.
+    return (
+      "Bonjour, merci pour votre message. Je vous rappelle au plus vite" +
+      (infos.includes("adresse") ? " : pouvez-vous m'indiquer votre adresse ?" : ".") + "\n" +
+      `[Prénom de l'artisan] – ${grille.entreprise}\n` +
+      "(Message préparé avec l'aide d'un assistant IA et relu par l'artisan.)"
+    );
+  }
   const demandes = infos.filter((i) => QUESTIONS[i]).map((i) => QUESTIONS[i]);
   const corps = demandes.length
     ? `Pour préparer votre devis, pourriez-vous m'indiquer ${demandes.length === 1 ? demandes[0] : demandes.slice(0, -1).join(", ") + " et " + demandes[demandes.length - 1]} ?`
@@ -142,7 +151,7 @@ function calculerDevis(e, grille) {
       validite_jours: grille.validite_jours,
       mentions: "Brouillon à valider par l'artisan. Démo · entreprise fictive. Mentions légales du devis à compléter (SIRET, assurance décennale, conditions de paiement).",
     },
-    message_client_brouillon: messageClient(infos, grille),
+    message_client_brouillon: messageClient(infos, grille, e.urgence === "urgent"),
     a_faire: aFaire.join(" "),
   };
 }

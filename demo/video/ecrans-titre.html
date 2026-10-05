@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<style>
+  :root { --nuit: #0f172a; --nuit2: #1e293b; --accent: #f59e0b; --blanc: #f8fafc; --doux: #94a3b8; }
+  * { box-sizing: border-box; margin: 0; }
+  html, body { width: 1280px; height: 800px; overflow: hidden; background: var(--nuit); color: var(--blanc); font-family: "DejaVu Sans", system-ui, sans-serif; }
+  .scene { position: absolute; inset: 0; display: none; flex-direction: column; justify-content: center; padding: 0 120px; background: radial-gradient(1200px 700px at 80% 20%, #1e3a5f 0%, var(--nuit) 60%); }
+  .scene.active { display: flex; }
+  .entre { opacity: 0; transform: translateY(24px); animation: entre .7s cubic-bezier(.2,.8,.2,1) forwards; }
+  @keyframes entre { to { opacity: 1; transform: none; } }
+  .petit { font-size: 30px; color: var(--doux); font-weight: 600; letter-spacing: .02em; }
+  .grand { font-size: 76px; line-height: 1.08; font-weight: 800; letter-spacing: -.02em; }
+  .accent { color: var(--accent); }
+  .pile { position: absolute; right: 120px; top: 50%; transform: translateY(-50%); width: 300px; height: 380px; }
+  .feuille { position: absolute; width: 260px; height: 330px; background: #fff; border-radius: 10px; box-shadow: 0 20px 50px rgba(0,0,0,.4); padding: 26px; color: #334155; font-size: 16px; opacity: 0; animation: tombe .6s ease-out forwards; }
+  .feuille b { display: block; font-size: 20px; color: var(--nuit); margin-bottom: 14px; }
+  .feuille i { display: block; height: 10px; background: #e2e8f0; border-radius: 5px; margin: 12px 0; }
+  @keyframes tombe { from { opacity: 0; transform: translateY(-60px) rotate(var(--r)); } to { opacity: 1; transform: rotate(var(--r)); } }
+  .logo { display: flex; align-items: center; gap: 24px; }
+  .pastille { width: 92px; height: 92px; border-radius: 24px; background: var(--accent); display: grid; place-items: center; font-size: 56px; font-weight: 800; color: var(--nuit); box-shadow: 0 0 0 0 rgba(245,158,11,.6); animation: pulse 1.6s ease-out .8s 2; }
+  @keyframes pulse { to { box-shadow: 0 0 0 36px rgba(245,158,11,0); } }
+  .nom { font-size: 84px; font-weight: 800; letter-spacing: -.02em; }
+  .slogan { margin-top: 36px; font-size: 38px; line-height: 1.3; max-width: 900px; }
+  .badges { display: flex; gap: 18px; margin-top: 48px; flex-wrap: nowrap; }
+  .badge { background: var(--nuit2); border: 1px solid #334155; border-radius: 16px; padding: 18px 22px; font-size: 24px; white-space: nowrap; font-weight: 700; }
+  .badge small { display: block; font-size: 17px; color: var(--doux); font-weight: 600; margin-bottom: 6px; text-transform: uppercase; letter-spacing: .06em; }
+  .cta { margin-top: 52px; display: inline-flex; align-items: center; gap: 16px; align-self: flex-start; background: var(--accent); color: var(--nuit); font-size: 34px; font-weight: 800; padding: 22px 36px; border-radius: 999px; box-shadow: 0 16px 40px rgba(245,158,11,.35); }
+  .pied { position: absolute; left: 120px; right: 120px; bottom: 40px; display: flex; justify-content: space-between; font-size: 20px; color: var(--doux); }
+  .pied b { color: var(--blanc); }
+</style>
+</head>
+<body>
+  <section class="scene" id="A">
+    <p class="petit entre" style="animation-delay:.2s">21 h, après le chantier…</p>
+    <p class="grand entre" style="animation-delay:.9s; margin-top:18px">Encore des<br><span class="accent">devis à faire</span><br>ce soir ?</p>
+    <div class="pile">
+      <div class="feuille" style="--r:-10deg; left:-40px; top:50px; animation-delay:1.8s"><b>Devis n° 214</b><i></i><i style="width:70%"></i><i></i><i style="width:55%"></i></div>
+      <div class="feuille" style="--r:7deg; left:70px; top:0px; animation-delay:2.4s"><b>Devis n° 215</b><i></i><i style="width:60%"></i><i></i><i style="width:80%"></i></div>
+      <div class="feuille" style="--r:-2deg; left:20px; top:70px; animation-delay:3s"><b>Devis n° 216</b><i style="width:75%"></i><i></i><i style="width:50%"></i><i></i></div>
+    </div>
+  </section>
+
+  <section class="scene" id="B">
+    <div class="logo entre" style="animation-delay:.2s"><div class="pastille">J</div><div class="nom">Jarvis <span class="accent">Artisan</span></div></div>
+    <p class="slogan entre" style="animation-delay:1.1s">L'assistant qui prépare vos devis<br>pendant que <span class="accent">vous êtes sur le chantier.</span></p>
+  </section>
+
+  <section class="scene" id="C">
+    <p class="grand entre" style="animation-delay:.2s">Jarvis prépare.<br><span class="accent">Vous validez.</span></p>
+    <div class="badges">
+      <div class="badge entre" style="animation-delay:1.6s"><small>Un devis</small>≈ 2 minutes</div>
+      <div class="badge entre" style="animation-delay:2.4s"><small>Vos clients</small>Rien ne part sans vous</div>
+      <div class="badge entre" style="animation-delay:4.2s"><small>Objectif</small>5 h gagnées par semaine</div>
+    </div>
+    <div class="cta entre" style="animation-delay:6.6s">Démonstration gratuite · 30 min</div>
+    <div class="pied entre" style="animation-delay:7.4s"><span><b>Phashabel</b> · des agents IA pour les artisans</span><span>Démo réalisée sur une entreprise fictive</span></div>
+  </section>
+<script>
+  const s = new URLSearchParams(location.search).get("scene") || "A";
+  document.getElementById(s).classList.add("active");
+</script>
+</body>
+</html>

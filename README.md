@@ -59,7 +59,7 @@ python3 tests/evaluer.py --backend n8n                    # le workflow importé
 
 ## Pour la démo de 5 minutes
 
-Vidéo de la démo (66 s, enregistrée le 2026-10-04 dans n8n) : `demo/jarvis-artisan-demo.mp4`. Les temps d'attente de l'IA y sont accélérés et signalés à l'écran.
+Vidéo de vente (60 s) : `demo/video/jarvis-artisan-video-vente.mp4` (voix off + musique) et `demo/video/jarvis-artisan-video-vente-musique-seule.mp4`. Voix : Kokoro (voix française ff_siwis, en local). Musique : composée par programme (`demo/video/musique.py`), sans droits à payer. Les réponses de Jarvis ont été produites par le workflow n8n, puis rejouées pendant l'enregistrement pour caler l'image sur la voix. Fabrication : `demo/video/` (voix.py, musique.py, enregistrer.mjs, monter.py).
 
 
 1. Ouvre l'écran de démo, colle la demande d'un faux client, clique sur **Recevoir la demande**.
